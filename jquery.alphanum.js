@@ -1,13 +1,13 @@
 /********************************************************************
-* Limit the characters that may be entered in a text field
-* Common options: alphanumeric, alphabetic or numeric
-* Kevin Sheedy, 2012
-* http://github.com/KevinSheedy/jquery.alphanum
-*********************************************************************/
-(function( $ ){
+ * Limit the characters that may be entered in a text field
+ * Common options: alphanumeric, alphabetic or numeric
+ * Kevin Sheedy, 2012
+ * http://github.com/KevinSheedy/jquery.alphanum
+ *********************************************************************/
+(function ($) {
 
   // API ///////////////////////////////////////////////////////////////////
-  $.fn.alphanum = function(settings) {
+  $.fn.alphanum = function (settings) {
 
     var combinedSettings = getCombinedSettingsAlphaNum(settings);
 
@@ -18,7 +18,7 @@
     return this;
   };
 
-  $.fn.alpha = function(settings) {
+  $.fn.alpha = function (settings) {
 
     var defaultAlphaSettings = getCombinedSettingsAlphaNum('alpha');
     var combinedSettings = getCombinedSettingsAlphaNum(settings, defaultAlphaSettings);
@@ -30,14 +30,14 @@
     return this;
   };
 
-  $.fn.numeric = function(settings) {
+  $.fn.numeric = function (settings) {
 
     var combinedSettings = getCombinedSettingsNum(settings);
     var $collection = this;
 
     setupEventHandlers($collection, trimNum, combinedSettings);
 
-    $collection.blur(function(){
+    $collection.blur(function () {
       numericField_Blur(this, combinedSettings);
     });
 
@@ -50,78 +50,78 @@
   // Start Settings ////////////////////////////////////////////////////////
 
   var DEFAULT_SETTINGS_ALPHANUM = {
-    allow              : '',    // Allow extra characters
-    disallow           : '',    // Disallow extra characters
-    allowSpace         : true,  // Allow the space character
-    allowNewline       : true,  // Allow the newline character \n ascii 10
-    allowNumeric       : true,  // Allow digits 0-9
-    allowUpper         : true,  // Allow upper case characters
-    allowLower         : true,  // Allow lower case characters
-    allowCaseless      : true,  // Allow characters that don't have both upper & lower variants - eg Arabic or Chinese
-    allowLatin         : true,  // a-z A-Z
-    allowOtherCharSets : true,  // eg é, Á, Arabic, Chinese etc
-    forceUpper         : false, // Convert lower case characters to upper case
-    forceLower         : false, // Convert upper case characters to lower case
-    maxLength          : NaN    // eg Max Length
+    allow: '', // Allow extra characters
+    disallow: '', // Disallow extra characters
+    allowSpace: true, // Allow the space character
+    allowNewline: true, // Allow the newline character \n ascii 10
+    allowNumeric: true, // Allow digits 0-9
+    allowUpper: true, // Allow upper case characters
+    allowLower: true, // Allow lower case characters
+    allowCaseless: true, // Allow characters that don't have both upper & lower variants - eg Arabic or Chinese
+    allowLatin: true, // a-z A-Z
+    allowOtherCharSets: true, // eg é, Á, Arabic, Chinese etc
+    forceUpper: false, // Convert lower case characters to upper case
+    forceLower: false, // Convert upper case characters to lower case
+    maxLength: NaN // eg Max Length
   };
 
   var DEFAULT_SETTINGS_NUM = {
-    allowPlus           : false, // Allow the + sign
-    allowMinus          : true,  // Allow the - sign
-    allowThouSep        : true,  // Allow the thousands separator, default is the comma eg 12,000
-    allowDecSep         : true,  // Allow the decimal separator, default is the fullstop eg 3.141
-    allowLeadingSpaces  : false,
-    maxDigits           : NaN,   // The max number of digits
-    maxDecimalPlaces    : NaN,   // The max number of decimal places
-    maxPreDecimalPlaces : NaN,   // The max number digits before the decimal point
-    max                 : NaN,   // The max numeric value allowed
-    min                 : NaN    // The min numeric value allowed
+    allowPlus: false, // Allow the + sign
+    allowMinus: true, // Allow the - sign
+    allowThouSep: true, // Allow the thousands separator, default is the comma eg 12,000
+    allowDecSep: true, // Allow the decimal separator, default is the fullstop eg 3.141
+    allowLeadingSpaces: false,
+    maxDigits: NaN, // The max number of digits
+    maxDecimalPlaces: NaN, // The max number of decimal places
+    maxPreDecimalPlaces: NaN, // The max number digits before the decimal point
+    max: NaN, // The max numeric value allowed
+    min: NaN // The min numeric value allowed
   };
 
   // Some pre-defined groups of settings for convenience
   var CONVENIENCE_SETTINGS_ALPHANUM = {
-    'alpha' : {
-      allowNumeric  : false
+    'alpha': {
+      allowNumeric: false
     },
-    'upper' : {
-      allowNumeric  : false,
-      allowUpper    : true,
-      allowLower    : false,
-      allowCaseless : true
+    'upper': {
+      allowNumeric: false,
+      allowUpper: true,
+      allowLower: false,
+      allowCaseless: true
     },
-    'lower' : {
-      allowNumeric  : false,
-      allowUpper    : false,
-      allowLower    : true,
-      allowCaseless : true
+    'lower': {
+      allowNumeric: false,
+      allowUpper: false,
+      allowLower: true,
+      allowCaseless: true
     }
   };
 
   // Some pre-defined groups of settings for convenience
   var CONVENIENCE_SETTINGS_NUMERIC = {
-    'integer' : {
-      allowPlus    : false,
-      allowMinus   : true,
-      allowThouSep : false,
-      allowDecSep  : false
+    'integer': {
+      allowPlus: false,
+      allowMinus: true,
+      allowThouSep: false,
+      allowDecSep: false
     },
-    'positiveInteger' : {
-      allowPlus    : false,
-      allowMinus   : false,
-      allowThouSep : false,
-      allowDecSep  : false
+    'positiveInteger': {
+      allowPlus: false,
+      allowMinus: false,
+      allowThouSep: false,
+      allowDecSep: false
     }
   };
 
 
-  var BLACKLIST   = getBlacklistAscii() + getBlacklistNonAscii();
-  var THOU_SEP    = ',';
-  var DEC_SEP     = '.';
-  var DIGITS      = getDigitsMap();
+  var BLACKLIST = getBlacklistAscii() + getBlacklistNonAscii();
+  var THOU_SEP = ',';
+  var DEC_SEP = '.';
+  var DIGITS = getDigitsMap();
   var LATIN_CHARS = getLatinCharsSet();
 
   // Return the blacklisted special chars that are encodable using 7-bit ascii
-  function getBlacklistAscii(){
+  function getBlacklistAscii() {
     var blacklist = '!@#$%^&*()+=[]\\\';,/{}|":<>?~`.-_';
     blacklist += ' '; // 'Space' is on the blacklist but can be enabled using the 'allowSpace' config entry
     return blacklist;
@@ -131,13 +131,16 @@
   // We want this .js file to be encoded using 7-bit ascii so it can reach the widest possible audience
   // Higher order chars must be escaped eg "\xAC"
   // Not too worried about comments containing higher order characters for now (let's wait and see if it becomes a problem)
-  function getBlacklistNonAscii(){
+  function getBlacklistNonAscii() {
     var blacklist =
-        '\xAC'     // ¬
-      + '\u20AC'   // €
-      + '\xA3'     // £
-      + '\xA6'     // ¦
-      ;
+      '\xAC' // ¬
+      +
+      '\u20AC' // €
+      +
+      '\xA3' // £
+      +
+      '\xA6' // ¦
+    ;
     return blacklist;
   }
 
@@ -148,7 +151,7 @@
 
   function setupEventHandlers($textboxes, trimFunction, settings) {
 
-    $textboxes.each(function(){
+    $textboxes.each(function () {
 
       var $textbox = $(this);
 
@@ -156,37 +159,37 @@
         // Unbind existing alphanum event handlers
         .off('.alphanum')
 
-        .on('keyup.alphanum change.alphanum paste.alphanum', function(e){
+        .on('keyup.alphanum change.alphanum paste.alphanum', function (e) {
 
           var pastedText = '';
 
-          if(e.originalEvent && e.originalEvent.clipboardData && e.originalEvent.clipboardData.getData)
+          if (e.originalEvent && e.originalEvent.clipboardData && e.originalEvent.clipboardData.getData)
             pastedText = e.originalEvent.clipboardData.getData('text/plain');
 
           // setTimeout is necessary for handling the 'paste' event
-          setTimeout(function(){
+          setTimeout(function () {
             trimTextbox($textbox, trimFunction, settings, pastedText);
           }, 0);
         })
 
-        .on('keypress.alphanum', function(e){
+        .on('keypress.alphanum', function (e) {
 
-        // Determine which key is pressed.
-        // If it's a control key, then allow the event's default action to occur eg backspace, tab
+          // Determine which key is pressed.
+          // If it's a control key, then allow the event's default action to occur eg backspace, tab
           var charCode = !e.charCode ? e.which : e.charCode;
-          if(isControlKey(charCode)
-          || e.ctrlKey
-          || e.metaKey ) // cmd on MacOS
+          if (isControlKey(charCode) ||
+            e.ctrlKey ||
+            e.metaKey) // cmd on MacOS
             return;
 
-          var newChar         = String.fromCharCode(charCode);
+          var newChar = String.fromCharCode(charCode);
 
           // Determine if some text was selected / highlighted when the key was pressed
           var selectionObject = $textbox.selection();
           var start = selectionObject.start;
-          var end   = selectionObject.end;
+          var end = selectionObject.end;
 
-          var textBeforeKeypress  = $textbox.val();
+          var textBeforeKeypress = $textbox.val();
 
           // The new char may be inserted:
           //  1) At the start
@@ -199,10 +202,10 @@
           // Unfortunately, it isn't enough to just check if the new char is valid because some chars
           // are position sensitive eg the decimal point '.'' or the minus sign '-'' are only valid in certain positions.
           var potentialTextAfterKeypress = textBeforeKeypress.substring(0, start) + newChar + textBeforeKeypress.substring(end);
-          var validatedText              = trimFunction(potentialTextAfterKeypress, settings);
+          var validatedText = trimFunction(potentialTextAfterKeypress, settings);
 
           // If the keypress would cause the textbox to contain invalid characters, then cancel the keypress event
-          if(validatedText != potentialTextAfterKeypress)
+          if (validatedText != potentialTextAfterKeypress)
             e.preventDefault();
         });
     });
@@ -215,15 +218,15 @@
     var fieldValueNumeric = parseFloat($(inputBox).val());
     var $inputBox = $(inputBox);
 
-    if(isNaN(fieldValueNumeric)) {
+    if (isNaN(fieldValueNumeric)) {
       $inputBox.val('');
       return;
     }
 
-    if(isNumeric(settings.min) && fieldValueNumeric < settings.min)
+    if (isNumeric(settings.min) && fieldValueNumeric < settings.min)
       $inputBox.val('');
 
-    if(isNumeric(settings.max) && fieldValueNumeric > settings.max)
+    if (isNumeric(settings.max) && fieldValueNumeric > settings.max)
       $inputBox.val('');
   }
 
@@ -233,11 +236,11 @@
 
   function isControlKey(charCode) {
 
-    if(charCode >= 32)
+    if (charCode >= 32)
       return false;
-    if(charCode == 10)
+    if (charCode == 10)
       return false;
-    if(charCode == 13)
+    if (charCode == 13)
       return false;
 
     return true;
@@ -248,16 +251,16 @@
   // Which event gets fired first, keypress or keyup? What about IE6 etc etc?
   // Instead, it's easier to allow the 'bad' character to be entered and then to delete it immediately after.
 
-  function trimTextbox($textBox, trimFunction, settings, pastedText){
+  function trimTextbox($textBox, trimFunction, settings, pastedText) {
 
     var inputString = $textBox.val();
 
-    if(inputString == '' && pastedText.length > 0)
+    if (inputString == '' && pastedText.length > 0)
       inputString = pastedText;
 
     var outputString = trimFunction(inputString, settings);
 
-    if(inputString == outputString)
+    if (inputString == outputString)
       return;
 
     var caretPos = $textBox.alphanum_caret();
@@ -265,36 +268,36 @@
     $textBox.val(outputString);
 
     //Reset the caret position
-    if(inputString.length ==(outputString.length + 1))
+    if (inputString.length == (outputString.length + 1))
       $textBox.alphanum_caret(caretPos - 1);
     else
       $textBox.alphanum_caret(caretPos);
   }
 
-  function getCombinedSettingsAlphaNum(settings, defaultSettings){
-    if(typeof defaultSettings == 'undefined')
+  function getCombinedSettingsAlphaNum(settings, defaultSettings) {
+    if (typeof defaultSettings == 'undefined')
       defaultSettings = DEFAULT_SETTINGS_ALPHANUM;
     var userSettings, combinedSettings = {};
-    if(typeof settings === 'string')
+    if (typeof settings === 'string')
       userSettings = CONVENIENCE_SETTINGS_ALPHANUM[settings];
-    else if(typeof settings == 'undefined')
+    else if (typeof settings == 'undefined')
       userSettings = {};
     else
       userSettings = settings;
 
     $.extend(combinedSettings, defaultSettings, userSettings);
 
-    if(typeof combinedSettings.blacklist == 'undefined')
+    if (typeof combinedSettings.blacklist == 'undefined')
       combinedSettings.blacklistSet = getBlacklistSet(combinedSettings.allow, combinedSettings.disallow);
 
     return combinedSettings;
   }
 
-  function getCombinedSettingsNum(settings){
+  function getCombinedSettingsNum(settings) {
     var userSettings, combinedSettings = {};
-    if(typeof settings === 'string')
+    if (typeof settings === 'string')
       userSettings = CONVENIENCE_SETTINGS_NUMERIC[settings];
-    else if(typeof settings == 'undefined')
+    else if (typeof settings == 'undefined')
       userSettings = {};
     else
       userSettings = settings;
@@ -306,40 +309,40 @@
 
 
   // This is the heart of the algorithm
-  function alphanum_allowChar(validatedStringFragment, Char, settings){
+  function alphanum_allowChar(validatedStringFragment, Char, settings) {
 
-    if(settings.maxLength && validatedStringFragment.length >= settings.maxLength)
+    if (settings.maxLength && validatedStringFragment.length >= settings.maxLength)
       return false;
 
-    if(settings.allow.indexOf(Char) >=0 )
+    if (settings.allow.indexOf(Char) >= 0)
       return true;
 
-    if(settings.allowSpace && (Char == ' '))
+    if (settings.allowSpace && (Char == ' '))
       return true;
 
-    if(!settings.allowNewline && (Char == '\n' || Char == '\r'))
+    if (!settings.allowNewline && (Char == '\n' || Char == '\r'))
       return false;
 
-    if(settings.blacklistSet.contains(Char))
+    if (settings.blacklistSet.contains(Char))
       return false;
 
-    if(!settings.allowNumeric && DIGITS[Char])
+    if (!settings.allowNumeric && DIGITS[Char])
       return false;
 
-    if(!settings.allowUpper && isUpper(Char))
+    if (!settings.allowUpper && isUpper(Char))
       return false;
 
-    if(!settings.allowLower && isLower(Char))
+    if (!settings.allowLower && isLower(Char))
       return false;
 
-    if(!settings.allowCaseless && isCaseless(Char))
+    if (!settings.allowCaseless && isCaseless(Char))
       return false;
 
-    if(!settings.allowLatin && LATIN_CHARS.contains(Char))
+    if (!settings.allowLatin && LATIN_CHARS.contains(Char))
       return false;
 
-    if(!settings.allowOtherCharSets){
-      if(DIGITS[Char] || LATIN_CHARS.contains(Char))
+    if (!settings.allowOtherCharSets) {
+      if (DIGITS[Char] || LATIN_CHARS.contains(Char))
         return true;
       else
         return false;
@@ -348,45 +351,45 @@
     return true;
   }
 
-  function numeric_allowChar(validatedStringFragment, Char, settings){
+  function numeric_allowChar(validatedStringFragment, Char, settings) {
 
-    if(DIGITS[Char]) {
+    if (DIGITS[Char]) {
 
-      if(isMaxDigitsReached(validatedStringFragment, settings))
+      if (isMaxDigitsReached(validatedStringFragment, settings))
         return false;
 
-      if(isMaxPreDecimalsReached(validatedStringFragment, settings))
+      if (isMaxPreDecimalsReached(validatedStringFragment, settings))
         return false;
 
-      if(isMaxDecimalsReached(validatedStringFragment, settings))
+      if (isMaxDecimalsReached(validatedStringFragment, settings))
         return false;
 
-      if(isGreaterThanMax(validatedStringFragment + Char, settings))
+      if (isGreaterThanMax(validatedStringFragment + Char, settings))
         return false;
 
-      if(isLessThanMin(validatedStringFragment + Char, settings))
+      if (isLessThanMin(validatedStringFragment + Char, settings))
         return false;
 
       return true;
     }
 
-    if(settings.allowPlus && Char == '+' && validatedStringFragment == '')
+    if (settings.allowPlus && Char == '+' && validatedStringFragment == '')
       return true;
 
-    if(settings.allowMinus && Char == '-' && validatedStringFragment == '')
+    if (settings.allowMinus && Char == '-' && validatedStringFragment == '')
       return true;
 
-    if(Char == THOU_SEP && settings.allowThouSep && allowThouSep(validatedStringFragment))
+    if (Char == THOU_SEP && settings.allowThouSep && allowThouSep(validatedStringFragment))
       return true;
 
-    if(Char == DEC_SEP) {
+    if (Char == DEC_SEP) {
       // Only one decimal separator allowed
-      if(validatedStringFragment.indexOf(DEC_SEP) >= 0)
+      if (validatedStringFragment.indexOf(DEC_SEP) >= 0)
         return false;
       // Don't allow decimal separator when maxDecimalPlaces is set to 0
-      if(settings.allowDecSep && settings.maxDecimalPlaces === 0)
+      if (settings.allowDecSep && settings.maxDecimalPlaces === 0)
         return false;
-      if(settings.allowDecSep)
+      if (settings.allowDecSep)
         return true;
     }
 
@@ -399,19 +402,19 @@
     string = string + '';
 
     // Count the digits
-    return string.replace(/[^0-9]/g,'').length;
+    return string.replace(/[^0-9]/g, '').length;
   }
 
   function isMaxDigitsReached(string, settings) {
 
     var maxDigits = settings.maxDigits;
 
-    if(maxDigits === '' || isNaN(maxDigits))
+    if (maxDigits === '' || isNaN(maxDigits))
       return false; // In this case, there is no maximum
 
     var numDigits = countDigits(string);
 
-    if(numDigits >= maxDigits)
+    if (numDigits >= maxDigits)
       return true;
 
     return false;
@@ -421,18 +424,18 @@
 
     var maxDecimalPlaces = settings.maxDecimalPlaces;
 
-    if(maxDecimalPlaces === '' || isNaN(maxDecimalPlaces))
+    if (maxDecimalPlaces === '' || isNaN(maxDecimalPlaces))
       return false; // In this case, there is no maximum
 
     var indexOfDecimalPoint = string.indexOf(DEC_SEP);
 
-    if(indexOfDecimalPoint == -1)
+    if (indexOfDecimalPoint == -1)
       return false;
 
     var decimalSubstring = string.substring(indexOfDecimalPoint);
     var numDecimals = countDigits(decimalSubstring);
 
-    if(numDecimals >= maxDecimalPlaces)
+    if (numDecimals >= maxDecimalPlaces)
       return true;
 
     return false;
@@ -442,17 +445,17 @@
 
     var maxPreDecimalPlaces = settings.maxPreDecimalPlaces;
 
-    if(maxPreDecimalPlaces === '' || isNaN(maxPreDecimalPlaces))
+    if (maxPreDecimalPlaces === '' || isNaN(maxPreDecimalPlaces))
       return false; // In this case, there is no maximum
 
     var indexOfDecimalPoint = string.indexOf(DEC_SEP);
 
-    if(indexOfDecimalPoint >= 0)
+    if (indexOfDecimalPoint >= 0)
       return false;
 
     var numPreDecimalDigits = countDigits(string);
 
-    if(numPreDecimalDigits >= maxPreDecimalPlaces)
+    if (numPreDecimalDigits >= maxPreDecimalPlaces)
       return true;
 
     return false;
@@ -460,11 +463,11 @@
 
   function isGreaterThanMax(numericString, settings) {
 
-    if(!settings.max || settings.max < 0)
+    if (!settings.max || settings.max < 0)
       return false;
 
     var outputNumber = parseFloat(numericString);
-    if(outputNumber > settings.max)
+    if (outputNumber > settings.max)
       return true;
 
     return false;
@@ -472,11 +475,11 @@
 
   function isLessThanMin(numericString, settings) {
 
-    if(!settings.min || settings.min > 0)
+    if (!settings.min || settings.min > 0)
       return false;
 
     var outputNumber = parseFloat(numericString);
-    if(outputNumber < settings.min)
+    if (outputNumber < settings.min)
       return true;
 
     return false;
@@ -485,9 +488,9 @@
   /********************************
    * Trims a string according to the settings provided
    ********************************/
-  function trimAlphaNum(inputString, settings){
+  function trimAlphaNum(inputString, settings) {
 
-    if(typeof inputString != 'string')
+    if (typeof inputString != 'string')
       return inputString;
 
     var inChars = inputString.split('');
@@ -495,25 +498,25 @@
     var i = 0;
     var Char;
 
-    for(i=0; i<inChars.length; i++){
+    for (i = 0; i < inChars.length; i++) {
       Char = inChars[i];
       var validatedStringFragment = outChars.join('');
-      if(alphanum_allowChar(validatedStringFragment, Char, settings))
+      if (alphanum_allowChar(validatedStringFragment, Char, settings))
         outChars.push(Char);
     }
 
     var outputString = outChars.join('');
 
-    if(settings.forceLower)
+    if (settings.forceLower)
       outputString = outputString.toLowerCase();
-    else if(settings.forceUpper)
+    else if (settings.forceUpper)
       outputString = outputString.toUpperCase();
 
     return outputString;
   }
 
-  function trimNum(inputString, settings){
-    if(typeof inputString != 'string')
+  function trimNum(inputString, settings) {
+    if (typeof inputString != 'string')
       return inputString;
 
     var inChars = inputString.split('');
@@ -521,60 +524,60 @@
     var i = 0;
     var Char;
 
-    for(i=0; i<inChars.length; i++){
+    for (i = 0; i < inChars.length; i++) {
       Char = inChars[i];
       var validatedStringFragment = outChars.join('');
-      if(numeric_allowChar(validatedStringFragment, Char, settings))
+      if (numeric_allowChar(validatedStringFragment, Char, settings))
         outChars.push(Char);
     }
 
     return outChars.join('');
   }
 
-  function isUpper(Char){
+  function isUpper(Char) {
     var upper = Char.toUpperCase();
     var lower = Char.toLowerCase();
 
-    if( (Char == upper) && (upper != lower))
+    if ((Char == upper) && (upper != lower))
       return true;
     else
       return false;
   }
 
-  function isLower(Char){
+  function isLower(Char) {
     var upper = Char.toUpperCase();
     var lower = Char.toLowerCase();
 
-    if( (Char == lower) && (upper != lower))
+    if ((Char == lower) && (upper != lower))
       return true;
     else
       return false;
   }
 
-  function isCaseless(Char){
-    if(Char.toUpperCase() == Char.toLowerCase())
+  function isCaseless(Char) {
+    if (Char.toUpperCase() == Char.toLowerCase())
       return true;
     else
       return false;
   }
 
-  function getBlacklistSet(allow, disallow){
+  function getBlacklistSet(allow, disallow) {
 
-    var setOfBadChars  = new Set(BLACKLIST + disallow);
+    var setOfBadChars = new Set(BLACKLIST + disallow);
     var setOfGoodChars = new Set(allow);
 
-    var blacklistSet   = setOfBadChars.subtract(setOfGoodChars);
+    var blacklistSet = setOfBadChars.subtract(setOfGoodChars);
 
     return blacklistSet;
   }
 
-  function getDigitsMap(){
+  function getDigitsMap() {
     var array = '0123456789'.split('');
     var map = {};
     var i = 0;
     var digit;
 
-    for(i=0; i<array.length; i++){
+    for (i = 0; i < array.length; i++) {
       digit = array[i];
       map[digit] = true;
     }
@@ -582,7 +585,7 @@
     return map;
   }
 
-  function getLatinCharsSet(){
+  function getLatinCharsSet() {
     var lower = 'abcdefghijklmnopqrstuvwxyz';
     var upper = lower.toUpperCase();
     var azAZ = new Set(lower + upper);
@@ -593,31 +596,31 @@
   function allowThouSep(currentString) {
 
     // Can't start with a THOU_SEP
-    if(currentString.length == 0)
+    if (currentString.length == 0)
       return false;
 
     // Can't have a THOU_SEP anywhere after a DEC_SEP
     var posOfDecSep = currentString.indexOf(DEC_SEP);
-    if(posOfDecSep >= 0)
+    if (posOfDecSep >= 0)
       return false;
 
-    var posOfFirstThouSep       = currentString.indexOf(THOU_SEP);
+    var posOfFirstThouSep = currentString.indexOf(THOU_SEP);
 
     // Check if this is the first occurrence of a THOU_SEP
-    if(posOfFirstThouSep < 0)
+    if (posOfFirstThouSep < 0)
       return true;
 
-    var posOfLastThouSep        = currentString.lastIndexOf(THOU_SEP);
-    var charsSinceLastThouSep   = currentString.length - posOfLastThouSep - 1;
+    var posOfLastThouSep = currentString.lastIndexOf(THOU_SEP);
+    var charsSinceLastThouSep = currentString.length - posOfLastThouSep - 1;
 
     // Check if there has been 3 digits since the last THOU_SEP
-    if(charsSinceLastThouSep < 3)
+    if (charsSinceLastThouSep < 3)
       return false;
 
     var digitsSinceFirstThouSep = countDigits(currentString.substring(posOfFirstThouSep));
 
     // Check if there has been a multiple of 3 digits since the first THOU_SEP
-    if((digitsSinceFirstThouSep % 3) > 0)
+    if ((digitsSinceFirstThouSep % 3) > 0)
       return false;
 
     return true;
@@ -626,57 +629,57 @@
   ////////////////////////////////////////////////////////////////////////////////////
   // Implementation of a Set
   ////////////////////////////////////////////////////////////////////////////////////
-  function Set(elems){
-    if(typeof elems == 'string')
+  function Set(elems) {
+    if (typeof elems == 'string')
       this.map = stringToMap(elems);
     else
       this.map = {};
   }
 
-  Set.prototype.add = function(set){
+  Set.prototype.add = function (set) {
 
     var newSet = this.clone();
 
-    for(var key in set.map)
+    for (var key in set.map)
       newSet.map[key] = true;
 
     return newSet;
   };
 
-  Set.prototype.subtract = function(set){
+  Set.prototype.subtract = function (set) {
 
     var newSet = this.clone();
 
-    for(var key in set.map)
+    for (var key in set.map)
       delete newSet.map[key];
 
     return newSet;
   };
 
-  Set.prototype.contains = function(key){
-    if(this.map[key])
+  Set.prototype.contains = function (key) {
+    if (this.map[key])
       return true;
     else
       return false;
   };
 
-  Set.prototype.clone = function(){
+  Set.prototype.clone = function () {
     var newSet = new Set();
 
-    for(var key in this.map)
+    for (var key in this.map)
       newSet.map[key] = true;
 
     return newSet;
   };
   ////////////////////////////////////////////////////////////////////////////////////
 
-  function stringToMap(string){
+  function stringToMap(string) {
     var map = {};
     var array = string.split('');
-    var i=0;
+    var i = 0;
     var Char;
 
-    for(i=0; i<array.length; i++){
+    for (i = 0; i < array.length; i++) {
       Char = array[i];
       map[Char] = true;
     }
@@ -685,31 +688,31 @@
   }
 
   // Backdoor for testing
-  $.fn.alphanum.backdoorAlphaNum = function(inputString, settings){
+  $.fn.alphanum.backdoorAlphaNum = function (inputString, settings) {
     var combinedSettings = getCombinedSettingsAlphaNum(settings);
 
     return trimAlphaNum(inputString, combinedSettings);
   };
 
-  $.fn.alphanum.backdoorNumeric = function(inputString, settings){
+  $.fn.alphanum.backdoorNumeric = function (inputString, settings) {
     var combinedSettings = getCombinedSettingsNum(settings);
 
     return trimNum(inputString, combinedSettings);
   };
 
-  $.fn.alphanum.setNumericSeparators = function(settings) {
+  $.fn.alphanum.setNumericSeparators = function (settings) {
 
-    if(settings.thousandsSeparator.length != 1)
+    if (settings.thousandsSeparator.length != 1)
       return;
 
-    if(settings.decimalSeparator.length != 1)
+    if (settings.decimalSeparator.length != 1)
       return;
 
     THOU_SEP = settings.thousandsSeparator;
     DEC_SEP = settings.decimalSeparator;
   };
 
-})( jQuery );
+})(jQuery);
 
 /*eslint-disable */
 //Include the 3rd party lib: jquery.caret.js
@@ -758,7 +761,7 @@
 
   // Set caret to a particular index
   $.fn.alphanum_caret = function (index, offset) {
-    if (typeof(index) === "undefined") {
+    if (typeof (index) === "undefined") {
       return caretPos(this.get(0));
     }
 
@@ -768,7 +771,7 @@
 
         if (offset === true) {
           i += index.length;
-        } else if (typeof(offset) !== "undefined") {
+        } else if (typeof (offset) !== "undefined") {
           i += offset;
         }
 
@@ -783,10 +786,175 @@
 }(jQuery));
 
 /**********************************************************
-* Selection Library
-* Used to determine what text is highlighted in the textbox before a key is pressed.
-* http://donejs.com/docs.html#!jQuery.fn.selection
-* https://github.com/jupiterjs/jquerymx/blob/master/dom/selection/selection.js
-***********************************************************/
-(function(e){var t=function(e){return e.replace(/([a-z])([a-z]+)/gi,function(e,t,n){return t+n.toLowerCase()}).replace(/_/g,"")},n=function(e){return e.replace(/^([a-z]+)_TO_([a-z]+)/i,function(e,t,n){return n+"_TO_"+t})},r=function(e){return e?e.ownerDocument.defaultView||e.ownerDocument.parentWindow:window},i=function(t,n){var r=e.Range.current(t).clone(),i=e.Range(t).select(t);if(!r.overlaps(i)){return null}if(r.compare("START_TO_START",i)<1){startPos=0;r.move("START_TO_START",i)}else{fromElementToCurrent=i.clone();fromElementToCurrent.move("END_TO_START",r);startPos=fromElementToCurrent.toString().length}if(r.compare("END_TO_END",i)>=0){endPos=i.toString().length}else{endPos=startPos+r.toString().length}return{start:startPos,end:endPos}},s=function(t){var n=r(t);if(t.selectionStart!==undefined){if(document.activeElement&&document.activeElement!=t&&t.selectionStart==t.selectionEnd&&t.selectionStart==0){return{start:t.value.length,end:t.value.length}}return{start:t.selectionStart,end:t.selectionEnd}}else if(n.getSelection){return i(t,n)}else{try{if(t.nodeName.toLowerCase()=="input"){var s=r(t).document.selection.createRange(),o=t.createTextRange();o.setEndPoint("EndToStart",s);var u=o.text.length;return{start:u,end:u+s.text.length}}else{var a=i(t,n);if(!a){return a}var f=e.Range.current().clone(),l=f.clone().collapse().range,c=f.clone().collapse(false).range;l.moveStart("character",-1);c.moveStart("character",-1);if(a.startPos!=0&&l.text==""){a.startPos+=2}if(a.endPos!=0&&c.text==""){a.endPos+=2}return a}}catch(h){return{start:t.value.length,end:t.value.length}}}},o=function(e,t,n){var i=r(e);if(e.setSelectionRange){if(n===undefined){e.focus();e.setSelectionRange(t,t)}else{e.select();e.selectionStart=t;e.selectionEnd=n}}else if(e.createTextRange){var s=e.createTextRange();s.moveStart("character",t);n=n||t;s.moveEnd("character",n-e.value.length);s.select()}else if(i.getSelection){var o=i.document,u=i.getSelection(),f=o.createRange(),l=[t,n!==undefined?n:t];a([e],l);f.setStart(l[0].el,l[0].count);f.setEnd(l[1].el,l[1].count);u.removeAllRanges();u.addRange(f)}else if(i.document.body.createTextRange){var f=document.body.createTextRange();f.moveToElementText(e);f.collapse();f.moveStart("character",t);f.moveEnd("character",n!==undefined?n:t);f.select()}},u=function(e,t,n,r){if(typeof n[0]==="number"&&n[0]<t){n[0]={el:r,count:n[0]-e}}if(typeof n[1]==="number"&&n[1]<=t){n[1]={el:r,count:n[1]-e};}},a=function(e,t,n){var r,i;n=n||0;for(var s=0;e[s];s++){r=e[s];if(r.nodeType===3||r.nodeType===4){i=n;n+=r.nodeValue.length;u(i,n,t,r)}else if(r.nodeType!==8){n=a(r.childNodes,t,n)}}return n};jQuery.fn.selection=function(e,t){if(e!==undefined){return this.each(function(){o(this,e,t)})}else{return s(this[0])}};e.fn.selection.getCharElement=a})(jQuery);
+ * Selection Library
+ * Used to determine what text is highlighted in the textbox before a key is pressed.
+ * http://donejs.com/docs.html#!jQuery.fn.selection
+ * https://github.com/jupiterjs/jquerymx/blob/master/dom/selection/selection.js
+ ***********************************************************/
+(function (e) {
+  var t = function (e) {
+      return e.replace(/([a-z])([a-z]+)/gi, function (e, t, n) {
+        return t + n.toLowerCase()
+      }).replace(/_/g, "")
+    },
+    n = function (e) {
+      return e.replace(/^([a-z]+)_TO_([a-z]+)/i, function (e, t, n) {
+        return n + "_TO_" + t
+      })
+    },
+    r = function (e) {
+      return e ? e.ownerDocument.defaultView || e.ownerDocument.parentWindow : window
+    },
+    i = function (t, n) {
+      var r = e.Range.current(t).clone(),
+        i = e.Range(t).select(t);
+      if (!r.overlaps(i)) {
+        return null
+      }
+      if (r.compare("START_TO_START", i) < 1) {
+        startPos = 0;
+        r.move("START_TO_START", i)
+      } else {
+        fromElementToCurrent = i.clone();
+        fromElementToCurrent.move("END_TO_START", r);
+        startPos = fromElementToCurrent.toString().length
+      }
+      if (r.compare("END_TO_END", i) >= 0) {
+        endPos = i.toString().length
+      } else {
+        endPos = startPos + r.toString().length
+      }
+      return {
+        start: startPos,
+        end: endPos
+      }
+    },
+    s = function (t) {
+      var n = r(t);
+      if (t.selectionStart !== undefined) {
+        if (document.activeElement && document.activeElement != t && t.selectionStart == t.selectionEnd && t.selectionStart == 0) {
+          return {
+            start: t.value.length,
+            end: t.value.length
+          }
+        }
+        return {
+          start: t.selectionStart,
+          end: t.selectionEnd
+        }
+      } else if (n.getSelection) {
+        return i(t, n)
+      } else {
+        try {
+          if (t.nodeName.toLowerCase() == "input") {
+            var s = r(t).document.selection.createRange(),
+              o = t.createTextRange();
+            o.setEndPoint("EndToStart", s);
+            var u = o.text.length;
+            return {
+              start: u,
+              end: u + s.text.length
+            }
+          } else {
+            var a = i(t, n);
+            if (!a) {
+              return a
+            }
+            var f = e.Range.current().clone(),
+              l = f.clone().collapse().range,
+              c = f.clone().collapse(false).range;
+            l.moveStart("character", -1);
+            c.moveStart("character", -1);
+            if (a.startPos != 0 && l.text == "") {
+              a.startPos += 2
+            }
+            if (a.endPos != 0 && c.text == "") {
+              a.endPos += 2
+            }
+            return a
+          }
+        } catch (h) {
+          return {
+            start: t.value.length,
+            end: t.value.length
+          }
+        }
+      }
+    },
+    o = function (e, t, n) {
+      var i = r(e);
+      if (e.setSelectionRange) {
+        if (n === undefined) {
+          e.focus();
+          e.setSelectionRange(t, t)
+        } else {
+          e.select();
+          e.selectionStart = t;
+          e.selectionEnd = n
+        }
+      } else if (e.createTextRange) {
+        var s = e.createTextRange();
+        s.moveStart("character", t);
+        n = n || t;
+        s.moveEnd("character", n - e.value.length);
+        s.select()
+      } else if (i.getSelection) {
+        var o = i.document,
+          u = i.getSelection(),
+          f = o.createRange(),
+          l = [t, n !== undefined ? n : t];
+        a([e], l);
+        f.setStart(l[0].el, l[0].count);
+        f.setEnd(l[1].el, l[1].count);
+        u.removeAllRanges();
+        u.addRange(f)
+      } else if (i.document.body.createTextRange) {
+        var f = document.body.createTextRange();
+        f.moveToElementText(e);
+        f.collapse();
+        f.moveStart("character", t);
+        f.moveEnd("character", n !== undefined ? n : t);
+        f.select()
+      }
+    },
+    u = function (e, t, n, r) {
+      if (typeof n[0] === "number" && n[0] < t) {
+        n[0] = {
+          el: r,
+          count: n[0] - e
+        }
+      }
+      if (typeof n[1] === "number" && n[1] <= t) {
+        n[1] = {
+          el: r,
+          count: n[1] - e
+        };
+      }
+    },
+    a = function (e, t, n) {
+      var r, i;
+      n = n || 0;
+      for (var s = 0; e[s]; s++) {
+        r = e[s];
+        if (r.nodeType === 3 || r.nodeType === 4) {
+          i = n;
+          n += r.nodeValue.length;
+          u(i, n, t, r)
+        } else if (r.nodeType !== 8) {
+          n = a(r.childNodes, t, n)
+        }
+      }
+      return n
+    };
+  jQuery.fn.selection = function (e, t) {
+    if (e !== undefined) {
+      return this.each(function () {
+        o(this, e, t)
+      })
+    } else {
+      return s(this[0])
+    }
+  };
+  e.fn.selection.getCharElement = a
+})(jQuery);
 /*eslint-enable */
