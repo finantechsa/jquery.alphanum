@@ -30,7 +30,7 @@
     return this;
   };
 
-  $.fn.numeric = function (settings) {
+  $.fn.numeric2 = function (settings) {
 
     var combinedSettings = getCombinedSettingsNum(settings);
     var $collection = this;
